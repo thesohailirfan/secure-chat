@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "secure-chat",
+    "name": "Secure Chat",
     "slug": "secure-chat",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/signal-app-logo.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -21,12 +21,16 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/signal-app-logo.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.blanc.securechat",
+      
+      "googleServicesFile": "./google-services.json"
+       
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/signal-app-logo.png"
     }
   }
 }
