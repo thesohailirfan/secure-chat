@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "865516440921",
+    "project_id": "chat-dd277",
+    "storage_bucket": "chat-dd277.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:865516440921:android:d35bc7e014c659e8ae1048",
+        "android_client_info": {
+          "package_name": "com.blanc.securechat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "865516440921-8bgmmhb39o70h5rct3hjfgkib6e90qn1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNp56MepLHJkOYXbcgPaYXQzzdWWmzsvM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "865516440921-8bgmmhb39o70h5rct3hjfgkib6e90qn1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

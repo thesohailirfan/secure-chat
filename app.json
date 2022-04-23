@@ -17,7 +17,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.blanc.securechat"
     },
     "android": {
       "adaptiveIcon": {
@@ -25,9 +26,7 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.blanc.securechat",
-      
       "googleServicesFile": "./google-services.json"
-       
     },
     "web": {
       "favicon": "./assets/signal-app-logo.png"
