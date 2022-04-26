@@ -1,10 +1,11 @@
-import { StyleSheet, Text, View, Dimensions, StatusBar, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, StatusBar, ActivityIndicator, Modal, TouchableOpacity } from 'react-native';
 import * as React from 'react';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { AuthProvider, useAuth } from "./src/context/AuthContext";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 
 import Inbox from './src/views/inbox';
@@ -25,6 +26,8 @@ function NavContainer(){
   const [loading, setloading] = React.useState(true)
   const [state, setState] = React.useState(false)
   const { login, currentUser } = useAuth()
+
+  const [calling, setcalling] = React.useState(true)
 
   const getData = async () => {
     const loginData = await getLogin()
@@ -49,6 +52,39 @@ function NavContainer(){
   
 
   return(
+    <>
+    <Modal
+        animationType="fade"
+        transparent={true}
+        visible={calling}
+        onRequestClose={() => {
+          Alert.alert('Modal has been closed.');
+          setcalling(!calling);
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <View style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={[styles.modalText, { marginVertical: 0, fontSize: 15}]}>Incoming Call</Text>
+              <Text style={[styles.modalText, { marginVertical: 0, fontSize: 12}]}>from</Text>
+              <Text style={[styles.modalText, { marginVertical: 30, marginBottom: 60, fontSize: 20, fontWeight: 'bold'}]}>UserName123</Text>
+            </View>
+            <View style={{flexDirection: 'row', width: Dimensions.get("window").width *0.5, justifyContent: "space-between", alignItems: 'center'}}>
+              <TouchableOpacity
+                style={[styles.submitBtn2, {backgroundColor: "#FF0000"}]}
+                onPress={() => setcalling(!calling)}>
+                <Text style={styles.textStyle}><Ionicons name={"call"} size={22} color={"#fff"} /></Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.submitBtn2, {backgroundColor: "#008000"}]}
+                onPress={(e) => handleAccept(e)}
+              >
+                <Text><Ionicons name={"call"} size={22} color={"#fff"} /></Text>
+              </TouchableOpacity>
+            </View>
+           
+          </View>
+        </View>
+      </Modal>
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         
@@ -79,6 +115,7 @@ function NavContainer(){
         }
       </Stack.Navigator>
     </NavigationContainer>
+    </>
   )
 }
 
@@ -115,5 +152,24 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center', 
     alignItems: 'center'
-  }
+  },
+  submitBtn2: {
+    backgroundColor: theme.secondary,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    borderRadius: 100,
+  },
+  modalView: {
+    height: Dimensions.get("window").height * 0.8,
+    width: Dimensions.get("window").width * 0.8,
+    backgroundColor: theme.primary,
+    justifyContent: "space-evenly",
+    alignItems: "center"
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
 });
