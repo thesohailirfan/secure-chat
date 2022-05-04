@@ -30,7 +30,9 @@ export default function Inbox(props) {
 
     useEffect(() => {
         registerForPushNotificationsAsync().then(token => {
-        setUserToken(currentUser.uid, token)
+            if(token){
+                setUserToken(currentUser.uid, token)
+            }
         });
 
         // This listener is fired whenever a notification is received while the app is foregrounded

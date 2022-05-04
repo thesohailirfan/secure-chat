@@ -33,6 +33,7 @@ import { sendPushNotification } from "./inbox";
 import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import * as FileSystem from "expo-file-system";
+import { useCalling } from "../context/CallContext";
 
 LogBox.ignoreLogs([`Setting a timer for a long period`]);
 
@@ -46,6 +47,8 @@ export default function Chat(props) {
   const [displayImage, setDisplayImage] = useState();
   const [modalVisible, setModalVisible] = useState(false);
   const {navigation} = props
+
+  const {create} = useCalling()
 
   const getData = async () => {
     try {
@@ -278,9 +281,9 @@ export default function Chat(props) {
         <TouchableOpacity onPress={(e) =>{setModalVisible(true)}} >
             <Text><Ionicons name={"trash-outline"} size={22} color={theme.textPrimary} /></Text>
         </TouchableOpacity>
-        {/* <TouchableOpacity onPress={(e) =>{getData()}} style={{marginHorizontal: 10 }}>
-            <Text><Ionicons name={"refresh"} size={22} color={theme.textPrimary} /></Text>
-        </TouchableOpacity> */}
+        <TouchableOpacity onPress={(e) =>{create(id)}} style={{marginHorizontal: 10 }}>
+            <Text><Ionicons name={"call"} size={22} color={theme.textPrimary} /></Text>
+        </TouchableOpacity>
       </View>
       <View style={{ flex: 1, backgroundColor: "#f1f1f1" }}>
         <GiftedChat
