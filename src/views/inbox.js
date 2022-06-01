@@ -42,7 +42,7 @@ export default function Inbox(props) {
 
         // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-        console.log(response);
+
         });
 
         return () => {
@@ -189,8 +189,6 @@ export async function sendPushNotification(expoPushToken, title, body) {
       title: title,
       body: body,
     };
-
-    console.log("Notification",message);
   
     await fetch('https://exp.host/--/api/v2/push/send', {
       method: 'POST',
@@ -217,7 +215,6 @@ export async function sendPushNotification(expoPushToken, title, body) {
         return;
       }
       token = (await Notifications.getExpoPushTokenAsync()).data;
-      console.log(token);
     } else {
       alert('Must use physical device for Push Notifications');
     }

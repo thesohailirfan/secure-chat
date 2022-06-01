@@ -24,7 +24,7 @@ import { theme } from "./src/theme";
 import Login from "./src/views/login";
 import AddFriend from "./src/views/addfriend";
 import { auth, firestore, getLogin } from "./src/firebase";
-import { RTCIceCandidate, RTCPeerConnection } from "react-native-webrtc";
+import { RTCIceCandidate, RTCPeerConnection, RTCView } from "react-native-webrtc";
 import Utils from "./src/utils";
 import { CallProvider, useCalling } from "./src/context/CallContext";
 
@@ -34,15 +34,13 @@ function NavContainer() {
   const [loading, setloading] = React.useState(true);
   const [state, setState] = React.useState(false);
   const { login, currentUser } = useAuth();
-  const {calling , setcalling } = useCalling()
+  const { calling, hangup, connecting, getCalling, join, localStream, remoteStream, name } = useCalling()
 
 
   const getData = async () => {
     const loginData = await getLogin();
-    console.log(loginData);
     if (loginData) {
       const loginStat = await login(loginData.username, loginData.password);
-      console.log(loginStat);
       setloading(false);
     } else {
       setloading(false);
@@ -53,7 +51,7 @@ function NavContainer() {
 
   React.useEffect(() => {
     getData();
-  }, []);
+  }, [remoteStream]);
 
   return (
     <>
@@ -62,12 +60,11 @@ function NavContainer() {
         transparent={true}
         visible={calling}
         onRequestClose={() => {
-          Alert.alert("Cancelled.");
-          setcalling(!calling);
         }}
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
+
             <View
               style={{
                 display: "flex",
@@ -79,12 +76,13 @@ function NavContainer() {
               <Text
                 style={[styles.modalText, { marginVertical: 0, fontSize: 15 }]}
               >
-                Incoming Call
+                { remoteStream ? "In a call" : "Incoming Call"}
+                
               </Text>
               <Text
                 style={[styles.modalText, { marginVertical: 0, fontSize: 12 }]}
               >
-                from
+                { remoteStream ? "with" : "from"}
               </Text>
               <Text
                 style={[
@@ -97,9 +95,23 @@ function NavContainer() {
                   },
                 ]}
               >
-                UserName1234
+                {name}
               </Text>
             </View>
+            {
+              localStream &&
+              <>
+              <Text>Local Stream : </Text>
+              <RTCView streamURL={localStream.toURL()} objectFit={'contain'} style={{height: 30, width:30, borderColor: '#000', borderWidth: 1}} />
+              </>
+            }
+            {
+              remoteStream &&
+              <>
+              <Text>Remote Stream : </Text>
+              <RTCView streamURL={remoteStream.toURL()} objectFit={'contain'} style={{height: 30, width:30, borderColor: '#000', borderWidth: 1}} />
+              </>
+            }
             <View
               style={{
                 flexDirection: "row",
@@ -116,20 +128,24 @@ function NavContainer() {
                     transform: [{ rotate: "135deg" }],
                   },
                 ]}
-                onPress={() => setcalling(!calling)}
+                onPress={(e) => hangup()}
               >
                 <Text style={styles.textStyle}>
                   <Ionicons name={"call"} size={22} color={"#fff"} />
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.submitBtn2, { backgroundColor: "#008000" }]}
-                onPress={(e) => handleAccept(e)}
-              >
-                <Text>
-                  <Ionicons name={"call"} size={22} color={"#fff"} />
-                </Text>
-              </TouchableOpacity>
+
+              {getCalling && 
+                <TouchableOpacity
+                  style={[styles.submitBtn2, { backgroundColor: "#008000" }]}
+                  onPress={(e) => join()}
+                >
+                  <Text>
+                    <Ionicons name={"call"} size={22} color={"#fff"} />
+                  </Text>
+                </TouchableOpacity>
+              }
+              
             </View>
           </View>
         </View>

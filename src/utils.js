@@ -4,7 +4,7 @@ export default class Utils {
     static async getStream(){
         let isFront = true;
         const sourceInfos = await mediaDevices.enumerateDevices()
-        console.log(sourceInfos);
+        //console.log(sourceInfos);
         let videoSourceId;
         for (let i = 0; i < sourceInfos.length; i++) {
             const sourceInfo = sourceInfos[i];
@@ -12,9 +12,15 @@ export default class Utils {
             videoSourceId = sourceInfo.deviceId;
             }
         }
-        const stream = mediaDevices.getUserMedia({
+        const stream = await mediaDevices.getUserMedia({
             audio: true,
-            video: false
+            video: {
+                width: 640,
+                height: 480,
+                frameRate: 30,
+                facingMode: "user",
+                deviceId: videoSourceId
+              }
         })
 
         if(typeof stream != 'boolean') return stream;
