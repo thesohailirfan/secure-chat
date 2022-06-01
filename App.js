@@ -34,7 +34,7 @@ function NavContainer() {
   const [loading, setloading] = React.useState(true);
   const [state, setState] = React.useState(false);
   const { login, currentUser } = useAuth();
-  const { calling, hangup, connecting, getCalling, join, localStream, remoteStream, name } = useCalling()
+  const { calling, hangup, connecting, getCalling, join, localStream, remoteStream, name, calleeUID, startTime } = useCalling()
 
 
   const getData = async () => {
@@ -46,8 +46,6 @@ function NavContainer() {
       setloading(false);
     }
   };
-
-  
 
   React.useEffect(() => {
     getData();
@@ -76,20 +74,20 @@ function NavContainer() {
               <Text
                 style={[styles.modalText, { marginVertical: 0, fontSize: 15 }]}
               >
-                { remoteStream ? "In a call" : "Incoming Call"}
+                { remoteStream ? "In a call" : calleeUID ? "Calling" : "Incoming Call"}
                 
               </Text>
               <Text
                 style={[styles.modalText, { marginVertical: 0, fontSize: 12 }]}
               >
-                { remoteStream ? "with" : "from"}
+                { remoteStream ? "with" : calleeUID ? "" : "from"}
               </Text>
               <Text
                 style={[
                   styles.modalText,
                   {
                     marginVertical: 30,
-                    marginBottom: 60,
+                    marginBottom: 20,
                     fontSize: 20,
                     fontWeight: "bold",
                   },
@@ -97,18 +95,22 @@ function NavContainer() {
               >
                 {name}
               </Text>
+              {
+                startTime &&
+                <DisplayTime startTime={startTime} />
+              }
+              
             </View>
             {
               localStream &&
               <>
-              <Text>Local Stream : </Text>
               <RTCView streamURL={localStream.toURL()} objectFit={'contain'} style={{height: 30, width:30, borderColor: '#000', borderWidth: 1}} />
               </>
             }
             {
               remoteStream &&
               <>
-              <Text>Remote Stream : </Text>
+
               <RTCView streamURL={remoteStream.toURL()} objectFit={'contain'} style={{height: 30, width:30, borderColor: '#000', borderWidth: 1}} />
               </>
             }
@@ -116,7 +118,7 @@ function NavContainer() {
               style={{
                 flexDirection: "row",
                 width: Dimensions.get("window").width * 0.5,
-                justifyContent: "space-between",
+                justifyContent: "center",
                 alignItems: "center",
               }}
             >
@@ -200,11 +202,46 @@ function Loading() {
   );
 }
 
+function DisplayTime(props) {
+  const {startTime} = props;
+  const [timeString, settimeString] = React.useState("");
+
+  setTimeout(() => {
+      const ts = Date.now();
+      const elapsed = ts - startTime;
+
+        // 1- Convert to seconds:
+        let seconds = elapsed / 1000;
+        // 2- Extract hours:
+        const hours = parseInt( seconds / 3600 ); // 3,600 seconds in 1 hour
+        seconds = seconds % 3600; // seconds remaining after extracting hours
+        // 3- Extract minutes:
+        const minutes = parseInt( seconds / 60 ); // 60 seconds in 1 minute
+        // 4- Keep only seconds not extracted to minutes:
+        seconds = parseInt(seconds % 60);
+        if(hours > 0){
+          settimeString( hours + "h "+ minutes + "m "+ seconds + "s")
+        }else if(minutes > 0){
+          settimeString( minutes + "m "+ seconds + "s")
+        }else{
+          settimeString( seconds + "s")
+        }      
+  }, 1000);
+  
+  return(
+  <Text
+    style={[styles.modalText, { marginVertical: 0, fontSize: 12 }]}
+  >
+    { timeString }
+  </Text>
+  )
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.primaryDark,
-    marginTop: StatusBar.currentHeight,
+    //marginTop: StatusBar.currentHeight,
   },
   loading: {
     flex: 1,
@@ -219,6 +256,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 20,
     borderRadius: 100,
+    marginHorizontal: 20
   },
   modalView: {
     height: Dimensions.get("window").height * 0.8,

@@ -14,13 +14,7 @@ export default class Utils {
         }
         const stream = await mediaDevices.getUserMedia({
             audio: true,
-            video: {
-                width: 640,
-                height: 480,
-                frameRate: 30,
-                facingMode: "user",
-                deviceId: videoSourceId
-              }
+            video: false,
         })
 
         if(typeof stream != 'boolean') return stream;

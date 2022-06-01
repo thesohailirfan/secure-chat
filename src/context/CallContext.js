@@ -3,6 +3,7 @@ import { MediaStream, RTCIceCandidate, RTCPeerConnection, RTCSessionDescription 
 import { auth, createUser, firestore, saveLogin, updateUser } from "../firebase";
 
 import Utils from "../utils";
+import { sendPushNotification } from "../views/inbox";
 import { useAuth } from "./AuthContext";
 
 const CallContext = createContext();
@@ -26,6 +27,7 @@ export function CallProvider({ children }) {
     const pc = useRef();
     const connecting = useRef(false);
     const config = { iceServers: [{ url: "stun:stun.l.google.com:19302" }] };
+    const [startTime, setstartTime] = useState(null);
 
     
 
@@ -50,35 +52,48 @@ export function CallProvider({ children }) {
     };
 
     //Create a Call
-    const create = async (uid) => {
+    const create = async (uid, name, token) => {
         setcalleeUID(uid)
+        setname(name)
         if(currentUser){
           setcalling(true)
           console.log("Staring a call");
           connecting.current = true;
 
-          await setupWebRTC();
-
-          const cRef = firestore.collection("calls").doc(uid)
-          const userRef = cRef.collection("caller")
-          const friendRef = cRef.collection("callee")
-
-          collectIceCandidates(userRef, friendRef)
-
-          if(pc.current){
-          const offer = new RTCSessionDescription(await pc.current.createOffer())
-          await pc.current.setLocalDescription(offer);
-          console.log( "User : ", username)
-          console.log("States : ",pc.current.signalingState)
-
           
 
-          const cWithOffer = {
-              offer: offer.toJSON(),
-              name: username
-          }
+          const cRef = firestore.collection("calls").doc(uid)
 
-          cRef.set(cWithOffer)
+          if(!(await cRef.get()).exists){
+            await setupWebRTC();
+            const userRef = cRef.collection("caller")
+            const friendRef = cRef.collection("callee")
+
+            collectIceCandidates(userRef, friendRef)
+
+            if(pc.current){
+            const offer = new RTCSessionDescription(await pc.current.createOffer())
+            await pc.current.setLocalDescription(offer);
+            console.log( "User : ", username)
+            console.log("States : ",pc.current.signalingState)
+
+            
+
+            const cWithOffer = {
+                offer: offer.toJSON(),
+                name: username
+            }
+
+            cRef.set(cWithOffer)
+            }
+
+            await sendPushNotification(
+              token,
+              currentUser.email.slice(0, currentUser.email.indexOf("@")),
+              " is calling you"
+            );
+          }else{
+            setname("In Another Call")
           }
         }
     };
@@ -121,7 +136,8 @@ export function CallProvider({ children }) {
             setremoteStream(rStream)
 
             const cWithAnswer = {
-                answer:answer.toJSON()
+                answer:answer.toJSON(),
+                startTime: Date.now(),
             }
             cRef.update(cWithAnswer)
           }else{
@@ -133,6 +149,10 @@ export function CallProvider({ children }) {
 
     // Hanging up a call
     const hangup = async () => {
+      
+      setname(null)
+      setcalleeUID(null)
+      setstartTime(null)
       setgetCalling(false)
       setcalling(false)
       connecting.current = false;
@@ -156,7 +176,10 @@ export function CallProvider({ children }) {
     const firestoreCleanUp = async () => {
 
       if(currentUser){
-        const cRef = firestore.collection("calls").doc(currentUser.uid)
+        let cRef = firestore.collection("calls").doc(currentUser.uid)
+        if(calleeUID){
+          cRef = firestore.collection("calls").doc(calleeUID)
+        }
 
         if(cRef){
           const calleeCandidate = await cRef.collection('callee').get()
@@ -230,13 +253,19 @@ export function CallProvider({ children }) {
         const data = snapshot.data()
 
         if(data){
-          setname(data.name)
+          if(!calleeUID){
+            setname(data.name)
+          }
           console.log("Same Username ? ", username , data.name === username)
           console.log("Got Answer ? ",data && data.answer && data.name === username)
+          if(data.startTime){
+            setstartTime(data.startTime)
+          }
         }
         
         if(data && data.answer && data.name === username){
           getAnswer(data.answer)
+          
         }
 
         if(data && data.offer && !connecting.current){
@@ -261,7 +290,7 @@ export function CallProvider({ children }) {
     
   }, [currentUser, calleeUID]);
 
-  const value = { calling, setcalling, create, join, hangup, localStream, remoteStream, getCalling, name,connecting };
+  const value = { calling, setcalling, create, join, hangup, localStream, remoteStream, getCalling, name,connecting, calleeUID, startTime };
 
   return (
     <CallContext.Provider value={value}>

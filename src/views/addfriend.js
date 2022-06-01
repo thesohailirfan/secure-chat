@@ -10,7 +10,8 @@ import {
   Dimensions,
   ScrollView,
   Image,
-  Modal
+  Modal,
+  ActivityIndicator
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAuth } from "../context/AuthContext";
@@ -165,6 +166,7 @@ function AddUsername(props) {
 
 function AddRequest(props) {
   const [req, setreq] = useState(null);
+  const [loading, setloading] = useState(true)
   const navigation = props.navigation;
   const { currentUser } = useAuth()
 
@@ -184,6 +186,7 @@ function AddRequest(props) {
       }
       setreq(temp)
     }
+    setloading(false);
   }
 
 
@@ -191,30 +194,39 @@ function AddRequest(props) {
     getData()
   })
 
-  return (
-    <View style={styles.listView}>
-      <ScrollView>
-        {
-          !req &&
-          <View style={styles.scrollItem}>
-            <Text></Text>
-            <Text style={{fontSize: 16}}>No Friend Requests</Text>
-            <Text></Text>
-          </View>
-        }
-        {
-          req &&
-         
-          req.map((data, index)=>{
-            return(
-              <FriendReq key={index} username={data.username} navigation={navigation} uid={data.uid}/>
-            )
-          })
-          
-        }
-      </ScrollView>
-    </View>
-  );
+  if(loading){
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size="small" color="#000" />
+        <Text style={{marginHorizontal: 10 }}>Loading...</Text>
+      </View>
+    );
+  }else{
+          return (
+            <View style={styles.listView}>
+              <ScrollView>
+                {
+                  !req &&
+                  <View style={styles.scrollItem}>
+                    <Text></Text>
+                    <Text style={{fontSize: 16}}>No Friend Requests</Text>
+                    <Text></Text>
+                  </View>
+                }
+                {
+                  req &&
+                
+                  req.map((data, index)=>{
+                    return(
+                      <FriendReq key={index} username={data.username} navigation={navigation} uid={data.uid}/>
+                    )
+                  })
+                  
+                }
+              </ScrollView>
+            </View>
+          );
+      }
 }
 
 const FriendReq = (props) => {
@@ -291,6 +303,14 @@ const FriendReq = (props) => {
 }
 
 const styles = StyleSheet.create({
+  loading: {
+    height: 100,
+    color: theme.textPrimary,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   submitBtn2: {
     backgroundColor: theme.secondary,
     paddingHorizontal: 20,

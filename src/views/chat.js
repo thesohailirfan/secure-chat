@@ -39,7 +39,7 @@ LogBox.ignoreLogs([`Setting a timer for a long period`]);
 
 export default function Chat(props) {
   const [messages, setMessages] = useState([]);
-  const [friend, setfriend] = useState();
+  const [friend, setfriend] = useState(null);
   const { id } = props.route.params;
   const { currentUser } = useAuth();
   const [token, settoken] = useState();
@@ -277,13 +277,16 @@ export default function Chat(props) {
             {friend ? friend.nickname : "Loading ... "}{" "}
           </Text>
         </View>
-        
+        <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+        { friend &&
+            <TouchableOpacity onPress={(e) =>{create(id, friend.nickname)}} style={{marginHorizontal: 40 }}>
+                <Text><Ionicons name={"call"} size={22} color={theme.textPrimary} /></Text>
+            </TouchableOpacity>
+        }
         <TouchableOpacity onPress={(e) =>{setModalVisible(true)}} >
             <Text><Ionicons name={"trash-outline"} size={22} color={theme.textPrimary} /></Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={(e) =>{create(id)}} style={{marginHorizontal: 10 }}>
-            <Text><Ionicons name={"call"} size={22} color={theme.textPrimary} /></Text>
-        </TouchableOpacity>
+       </View>
       </View>
       <View style={{ flex: 1, backgroundColor: "#f1f1f1" }}>
         <GiftedChat
